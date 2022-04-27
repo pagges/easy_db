@@ -49,7 +49,7 @@
 1. 解决上一个阶段暴露出来的问题，可能是设计上的，也可能是文件存储上的。
 2. 维护一份 Key-Index 在内存中，实现精确的查询数据，其结构如下所示
 
-![img easy_db](doc/img/easy_db.png)
+![img](doc/img/easy_db.png)
 
 
 **3.3 删除、合并操作**
