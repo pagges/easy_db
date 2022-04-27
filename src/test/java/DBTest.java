@@ -7,7 +7,7 @@ public class DBTest {
   EasyDBEngine easyDBEngine = new EasyDBEngine();
 
   public void testPut() {
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 10000; i++) {
       String key = "key:" + i;
       String value = "value:" + i;
       easyDBEngine
@@ -17,7 +17,7 @@ public class DBTest {
 
   public void readTest() {
     long start = System.currentTimeMillis();
-    String key = "key:3";
+    String key = "key:2000";
     Entry entry = easyDBEngine.get(key.getBytes(StandardCharsets.UTF_8));
     System.out
         .println(String.format("100000 records find %s cost: %d ms", key,
@@ -25,8 +25,10 @@ public class DBTest {
     System.out.println(entry);
   }
 
+
+
   public static void main(String[] args) {
-//    new DBTest().testPut();
+    new DBTest().testPut();
     new DBTest().readTest();
   }
 
