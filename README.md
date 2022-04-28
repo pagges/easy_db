@@ -49,7 +49,7 @@
 1. 解决上一个阶段暴露出来的问题，可能是设计上的，也可能是文件存储上的。
 2. 维护一份 Key-Index 在内存中，实现精确的查询数据，其结构如下所示
 
-![alt](https://github.com/pagges/easy_db/tree/master/doc/img/easy_db.png?raw=true)
+![索引设计图](https://github.com/pagges/easy_db/tree/master/doc/img/easy_db.png)
 
 
 **3.3 删除、合并操作**
