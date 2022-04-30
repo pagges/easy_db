@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.daniel.db.config.SysConfig;
+import org.daniel.db.model.BinlogModel;
 import org.daniel.db.model.Entry;
 import org.daniel.db.model.EntryIndex;
 import org.daniel.db.util.EasyDBFileUtil;
@@ -14,14 +15,35 @@ import org.daniel.db.util.SerializeUtil;
  */
 public class FileEngine {
 
-  private MemoryIndexEngine memoryIndexEngine;
+  private static MemoryIndexEngine memoryIndexEngine;
 
-  private Map<String, Long> filePointerMap = new HashMap<>(1);
+  private static BinlogEngine binlogEngine;
+
+  private static Map<String, Long> filePointerMap = new HashMap<>(1);
 
 
-  public FileEngine(MemoryIndexEngine memoryIndexEngine) {
-    this.memoryIndexEngine = memoryIndexEngine;
+  private volatile static FileEngine fileEngine;
+
+  private FileEngine() {
   }
+
+  public static FileEngine getInstance() {
+    if (null == fileEngine) {
+      synchronized (FileEngine.class) {
+        if (null == fileEngine) {
+          fileEngine = new FileEngine();
+        }
+      }
+    }
+    return fileEngine;
+  }
+
+
+  static {
+    binlogEngine = BinlogEngine.getInstance();
+    memoryIndexEngine = MemoryIndexEngine.getInstance();
+  }
+
 
   private void recordFilePointer(String path, Long pointer) {
     filePointerMap.put(path, pointer);
@@ -52,7 +74,7 @@ public class FileEngine {
     Long filePointer = getFilePointer(SysConfig.ORIGINAL_FILE_PATH);
     byte[] bytes = SerializeUtil.objectToBytes(entry);
     long newFilePointer = EasyDBFileUtil
-        .writeFile(SysConfig.ORIGINAL_FILE_PATH, filePointer, bytes);
+        .writeFile(filePath, filePointer, bytes);
 
     // write in-memory entryIndex map
     EntryIndex entryIndex = EntryIndex.builder()
@@ -61,6 +83,11 @@ public class FileEngine {
         .bytesSize(bytes.length)
         .build();
     memoryIndexEngine.putEntryIndex(entry.getKey(), entryIndex);
+
+    BinlogModel binlog = BinlogModel.builder().filePath(filePath).filePointer(filePointer).key(entry.getKey())
+        .bytesSize(bytes.length)
+        .build();
+    binlogEngine.writeBinlog(binlog);
 
     // record file pointer
     recordFilePointer(filePath, newFilePointer);

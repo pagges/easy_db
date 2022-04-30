@@ -3,15 +3,34 @@ package org.daniel.db.engine;
 import java.io.File;
 import org.daniel.db.config.SysConfig;
 import org.daniel.db.model.Entry;
+import org.daniel.db.util.EasyDBFileUtil;
 
 
 public class EasyDBEngine {
 
   private static FileEngine fileEngine;
 
+  private static volatile EasyDBEngine easyDBEngine;
+
+  private EasyDBEngine() {
+  }
+
+
+  public static EasyDBEngine getInstance() {
+    if (null == easyDBEngine) {
+      synchronized (EasyDBEngine.class) {
+        if (null == easyDBEngine) {
+          easyDBEngine = new EasyDBEngine();
+        }
+      }
+    }
+    return easyDBEngine;
+  }
+
+
   static {
     initSystem();
-    fileEngine = new FileEngine(new MemoryIndexEngine());
+    fileEngine = FileEngine.getInstance();
   }
 
 
@@ -23,6 +42,8 @@ public class EasyDBEngine {
     if (!file.exists()) {
       file.mkdir();
     }
+    EasyDBFileUtil.initFile(SysConfig.ORIGINAL_FILE_PATH);
+    EasyDBFileUtil.initFile(SysConfig.BIN_LOG_FILE_PATH);
   }
 
 

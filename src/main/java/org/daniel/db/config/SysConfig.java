@@ -23,4 +23,9 @@ public class SysConfig {
    * merged data
    */
   public static String MERGED_FILE_PATH = DATA_PATH + "/easy_db_merged.data";
+
+  /**
+   * essy db bin log
+   */
+  public static String BIN_LOG_FILE_PATH =  DATA_PATH + "/easy_db_bin_log.data";
 }

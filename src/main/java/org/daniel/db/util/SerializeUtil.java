@@ -1,13 +1,18 @@
 package org.daniel.db.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import org.daniel.db.model.BinlogModel;
 
 
 public class SerializeUtil {
+
+  private static Gson gson = new Gson();
 
   public static byte[] objectToBytes(Object obj) {
     byte[] bytes = null;
@@ -39,6 +44,16 @@ public class SerializeUtil {
       ex.printStackTrace();
     }
     return obj;
+  }
+
+
+  public static String objToJSON(Object obj) {
+    return gson.toJson(obj);
+  }
+
+
+  public static Object jsonToObj(String jsonStr, Class clazz) {
+    return gson.fromJson(jsonStr, clazz);
   }
 
 
