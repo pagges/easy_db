@@ -1,8 +1,8 @@
 package org.daniel.db.engine;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import org.daniel.db.config.SysConfig;
 import org.daniel.db.model.BinlogModel;
 import org.daniel.db.model.Entry;
@@ -19,7 +19,7 @@ public class FileEngine {
 
   private static BinlogEngine binlogEngine;
 
-  private static Map<String, Long> filePointerMap = new HashMap<>(1);
+  ScheduledExecutorService pool = Executors.newScheduledThreadPool(10);
 
 
   private volatile static FileEngine fileEngine;
@@ -45,15 +45,6 @@ public class FileEngine {
   }
 
 
-  private void recordFilePointer(String path, Long pointer) {
-    filePointerMap.put(path, pointer);
-  }
-
-
-  private long getFilePointer(String path) {
-    return filePointerMap.getOrDefault(path, 0L);
-  }
-
 
   /**
    * TODO: allocation file segment
@@ -71,10 +62,9 @@ public class FileEngine {
    */
   public void writeEntryIntoFile(Entry entry) {
     String filePath = allocationFile();
-    Long offset = getFilePointer(SysConfig.ORIGINAL_FILE_PATH);
     byte[] bytes = SerializeUtil.objectToBytes(entry);
-    long newFilePointer = EasyDBFileUtil
-        .writeFile(filePath, offset, bytes);
+    long offset = EasyDBFileUtil
+        .writeFile(filePath, bytes);
 
     // write in-memory entryIndex map
     EntryIndex entryIndex = EntryIndex.builder()
@@ -93,12 +83,14 @@ public class FileEngine {
         .bytesSize(bytes.length)
         .build();
     binlogEngine.writeBinlog(binlog);
-
-    // record file pointer
-    recordFilePointer(filePath, newFilePointer);
   }
 
 
+  /**
+   * read entry from file system
+   * @param keyBats
+   * @return
+   */
   public Entry readEntryFormFile(byte[] keyBats) {
     EntryIndex entryIndex = memoryIndexEngine.readEntryIndex(keyBats);
     if (Objects.isNull(entryIndex) || 0 == entryIndex.getMark()) {

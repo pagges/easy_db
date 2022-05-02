@@ -2,9 +2,7 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import org.daniel.db.config.SysConfig;
 import org.daniel.db.engine.EasyDBEngine;
-import org.daniel.db.model.BinlogModel;
 import org.daniel.db.model.Entry;
-import org.daniel.db.util.SerializeUtil;
 
 public class DBTest {
 
@@ -21,7 +19,7 @@ public class DBTest {
 
   public void readTest() {
     long start = System.currentTimeMillis();
-    String key = "key:1000";
+    String key = "key:0";
     Entry entry = easyDBEngine.get(key.getBytes(StandardCharsets.UTF_8));
     System.out
         .println(String.format("100000 records find %s cost: %d ms", key,
@@ -30,14 +28,13 @@ public class DBTest {
   }
 
 
-  public void readBinlogTest() {
+  public void readDataFileTest() {
     try {
-      RandomAccessFile rf = new RandomAccessFile(SysConfig.BIN_LOG_FILE_PATH, "r");
-      String line = null;
-      while ((line = rf.readLine()) != null) {
-        BinlogModel binlogModel = (BinlogModel) SerializeUtil.jsonToObj(line, BinlogModel.class);
-        System.out.println(binlogModel.toString());
-      }
+      RandomAccessFile rf = new RandomAccessFile(SysConfig.ORIGINAL_FILE_PATH, "r");
+      final long offset = rf.length();
+      rf.seek(offset);
+      System.out.println(offset);
+      System.out.println(rf.getFilePointer());
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -53,8 +50,8 @@ public class DBTest {
 
   public static void main(String[] args) {
 //    new DBTest().testPut();
+    new DBTest().testDelete();
     new DBTest().readTest();
-//    new DBTest().testDelete();
   }
 
 }

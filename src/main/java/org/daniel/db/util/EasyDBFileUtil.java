@@ -1,11 +1,9 @@
 package org.daniel.db.util;
 
-import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import org.daniel.db.config.SysConfig;
 
 public class EasyDBFileUtil {
 
@@ -28,18 +26,17 @@ public class EasyDBFileUtil {
    * random access write file
    *
    * @param filePath
-   * @param skip
    * @param content
    * @return
    */
-  public static long writeFile(String filePath, long skip, byte[] content) {
+  public static long writeFile(String filePath, byte[] content) {
     RandomAccessFile raf = null;
-    long filePoint = 0;
+    long offset = 0L;
     try {
       raf = new RandomAccessFile(filePath, "rw");
-      raf.seek(skip);
+      offset = raf.length();
+      raf.seek(offset);
       raf.write(content);
-      filePoint = raf.getFilePointer();
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
@@ -48,7 +45,7 @@ public class EasyDBFileUtil {
       } catch (Exception e) {
       }
     }
-    return filePoint;
+    return offset;
   }
 
 
