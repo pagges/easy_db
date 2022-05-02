@@ -1,13 +1,11 @@
 package org.daniel.db.util;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import org.daniel.db.model.BinlogModel;
 
 
 public class SerializeUtil {

@@ -11,10 +11,24 @@ import lombok.Getter;
 @Getter
 public class EntryIndex {
 
+  /**
+   * The address of the file storing the key
+   */
   private String filePath;
 
-  private Long filePointer;
+  /**
+   * the offset of the file
+   */
+  private Long offset;
 
+  /**
+   * byte size of the entry
+   */
   private Integer bytesSize;
+
+  /**
+   * mark 0: deleted 1: effective
+   */
+  private short mark;
 
 }

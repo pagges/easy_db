@@ -13,8 +13,9 @@ public class Entry implements Serializable {
    * value
    */
   private byte[] value;
+
   /**
-   * 1： normal 0： deleted
+   * 0: deleted 1: effective
    */
   private short mark;
 

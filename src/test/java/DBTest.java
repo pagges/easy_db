@@ -44,10 +44,17 @@ public class DBTest {
   }
 
 
+  public void testDelete(){
+    String key = "key:1000";
+    easyDBEngine.delete(key.getBytes(StandardCharsets.UTF_8));
+    System.out.println(easyDBEngine.get(key.getBytes(StandardCharsets.UTF_8)));
+  }
+
+
   public static void main(String[] args) {
 //    new DBTest().testPut();
     new DBTest().readTest();
-//    DBTest dbTest = new DBTest();
+//    new DBTest().testDelete();
   }
 
 }

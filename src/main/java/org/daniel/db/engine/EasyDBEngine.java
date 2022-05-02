@@ -51,6 +51,7 @@ public class EasyDBEngine {
     Entry entry = new Entry();
     entry.setKey(key);
     entry.setValue(value);
+    entry.setMark((short) 1);
     fileEngine.writeEntryIntoFile(entry);
   }
 

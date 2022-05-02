@@ -71,20 +71,25 @@ public class FileEngine {
    */
   public void writeEntryIntoFile(Entry entry) {
     String filePath = allocationFile();
-    Long filePointer = getFilePointer(SysConfig.ORIGINAL_FILE_PATH);
+    Long offset = getFilePointer(SysConfig.ORIGINAL_FILE_PATH);
     byte[] bytes = SerializeUtil.objectToBytes(entry);
     long newFilePointer = EasyDBFileUtil
-        .writeFile(filePath, filePointer, bytes);
+        .writeFile(filePath, offset, bytes);
 
     // write in-memory entryIndex map
     EntryIndex entryIndex = EntryIndex.builder()
         .filePath(filePath)
-        .filePointer(filePointer)
+        .offset(offset)
         .bytesSize(bytes.length)
+        .mark(entry.getMark())
         .build();
     memoryIndexEngine.putEntryIndex(entry.getKey(), entryIndex);
 
-    BinlogModel binlog = BinlogModel.builder().filePath(filePath).filePointer(filePointer).key(entry.getKey())
+    BinlogModel binlog = BinlogModel.builder()
+        .filePath(filePath)
+        .offset(offset)
+        .key(entry.getKey())
+        .mark(entry.getMark())
         .bytesSize(bytes.length)
         .build();
     binlogEngine.writeBinlog(binlog);
@@ -96,11 +101,11 @@ public class FileEngine {
 
   public Entry readEntryFormFile(byte[] keyBats) {
     EntryIndex entryIndex = memoryIndexEngine.readEntryIndex(keyBats);
-    if (Objects.isNull(entryIndex)) {
+    if (Objects.isNull(entryIndex) || 0 == entryIndex.getMark()) {
       return null;
     }
     final String filePath = entryIndex.getFilePath();
-    final Long skip = entryIndex.getFilePointer();
+    final Long skip = entryIndex.getOffset();
     final Integer bytesSize = entryIndex.getBytesSize();
     byte[] data = new byte[bytesSize];
     EasyDBFileUtil.readFile(filePath, skip, data);
