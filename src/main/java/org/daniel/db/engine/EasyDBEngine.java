@@ -1,14 +1,25 @@
 package org.daniel.db.engine;
 
 import java.io.File;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.daniel.db.config.SysConfig;
 import org.daniel.db.model.Entry;
 import org.daniel.db.util.EasyDBFileUtil;
 
-
+@Slf4j
 public class EasyDBEngine {
 
   private static FileEngine fileEngine;
+
+  /**
+   * merge thread
+   */
+  private static ScheduledExecutorService mergeThreadPool = Executors
+      .newScheduledThreadPool(SysConfig.MERGE_THREAD_NUM);
+
 
   private static volatile EasyDBEngine easyDBEngine;
 
@@ -31,6 +42,7 @@ public class EasyDBEngine {
   static {
     initSystem();
     fileEngine = FileEngine.getInstance();
+    mergeTask();
   }
 
 
@@ -44,6 +56,7 @@ public class EasyDBEngine {
     }
     EasyDBFileUtil.initFile(SysConfig.ORIGINAL_FILE_PATH);
     EasyDBFileUtil.initFile(SysConfig.BIN_LOG_FILE_PATH);
+    EasyDBFileUtil.initFile(SysConfig.MERGED_FILE_PATH);
   }
 
 
@@ -66,5 +79,19 @@ public class EasyDBEngine {
     return fileEngine.readEntryFormFile(key);
   }
 
+  /**
+   * task:  merge deleted entry rows
+   */
+  private static void mergeTask() {
+    log.info("EasyDB engine start mergeTask");
+    mergeThreadPool
+        .scheduleAtFixedRate(() -> {
+              fileEngine.mergeDeletedRows();
+            }, SysConfig.MERGE_THREAD_INIT_DELAY,
+            SysConfig.MERGE_THREAD_PERIOD, TimeUnit.SECONDS);
+  }
 
+  public long size() {
+    return fileEngine.getSize();
+  }
 }

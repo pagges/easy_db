@@ -2,7 +2,9 @@ package org.daniel.db.engine;
 
 import java.io.RandomAccessFile;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.daniel.db.config.SysConfig;
 import org.daniel.db.model.BinlogModel;
@@ -63,6 +65,20 @@ public class MemoryIndexEngine {
    */
   public EntryIndex readEntryIndex(byte[] keyBates) {
     return entryIndexMap.getOrDefault(getEntryKeyValue(keyBates), null);
+  }
+
+  /**
+   * return in-memory entry index key set
+   *
+   * @return
+   */
+  public Set<String> getKeySet() {
+    return entryIndexMap.keySet();
+  }
+
+
+  public long getSize() {
+    return entryIndexMap.values().stream().filter(entryIndex -> 1 == entryIndex.getMark()).count();
   }
 
   /**

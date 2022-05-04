@@ -41,17 +41,23 @@ public class DBTest {
   }
 
 
-  public void testDelete(){
-    String key = "key:1000";
+  public void testDelete() {
+    String key = "key:999";
     easyDBEngine.delete(key.getBytes(StandardCharsets.UTF_8));
     System.out.println(easyDBEngine.get(key.getBytes(StandardCharsets.UTF_8)));
   }
 
+  public void testSize() {
+    System.out.println(easyDBEngine.size());
+  }
+
 
   public static void main(String[] args) {
-//    new DBTest().testPut();
-    new DBTest().testDelete();
-    new DBTest().readTest();
+    DBTest dbTest = new DBTest();
+    dbTest.testSize();
+    dbTest.testDelete();
+//    dbTest.testPut();
+    dbTest.testSize();
   }
 
 }
